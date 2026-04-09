@@ -1,6 +1,6 @@
-git+https://github.com/msuliot/package.helpers.git
-git+https://github.com/msuliot/package.utils.git
-git+https://github.com/msuliot/package.data.loaders.git
+git+https://github.com/open-qe-automation/package.helpers.git
+git+https://github.com/open-qe-automation/package.utils.git
+git+https://github.com/open-qe-automation/package.data.loaders.git
 python-dotenv
 gradio
 rich
