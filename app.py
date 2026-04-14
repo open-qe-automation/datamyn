@@ -45,7 +45,7 @@ def main(namespace, system_prompt, query):
     
     # Query vector DB
     top_k = config.get('top_k', 5)
-    namespace = config.get('namespace', 'banking')
+    # Use namespace from Gradio dropdown (line 48 removed - was overwriting with config value)
     vector_result = vector_db_manager.query(
         query_embedding=embedding,
         top_k=top_k,
@@ -111,12 +111,15 @@ def main(namespace, system_prompt, query):
 # Gradio UI
 gr.close_all()
 
-# Get available namespaces from ChromaDB
+# Get available namespaces from ChromaDB (dynamic - not hardcoded)
 try:
-    collection = vector_db_manager.client.get_or_create_collection(config.get('namespace', 'banking'))
+    collections = vector_db_manager.client.list_collections()
+    dropdown_namespaces = [c.name for c in collections]
+    if not dropdown_namespaces:
+        dropdown_namespaces = [config.get('namespace', 'banking')]
+except Exception as e:
+    print(f"Could not list collections: {e}")
     dropdown_namespaces = [config.get('namespace', 'banking')]
-except:
-    dropdown_namespaces = ["banking"]
 
 with gr.Blocks() as demo:
     gr.Markdown("# DATAMYN - RAG Query Interface")
