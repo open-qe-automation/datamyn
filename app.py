@@ -7,6 +7,7 @@ import gradio as gr
 from msuliot.embedding_manager import create_embedding_manager
 from msuliot.vector_db_manager import create_vector_db_manager
 from msuliot.metadata_db_manager import create_metadata_db_manager
+from msuliot.chat_manager import create_chat_manager
 
 # Load config
 with open('config.json', 'r') as f:
@@ -16,6 +17,7 @@ with open('config.json', 'r') as f:
 embedding_manager = create_embedding_manager(config)
 vector_db_manager = create_vector_db_manager(config)
 metadata_db_manager = create_metadata_db_manager(config)
+chat_manager = create_chat_manager(config)
 
 
 def create_system_prompt():
@@ -90,17 +92,10 @@ def main(namespace, system_prompt, query):
     # Generate prompt
     prompt = create_prompt(query, context)
     
-    # Get LLM response
-    from msuliot.ollama_helper import OllamaChat
-    
-    chat_model = config.get('chat_model', 'llama3')
-    chat_temp = config.get('chat_temperature', 0.0)
-    chat_base_url = config.get('embedding_base_url', 'http://localhost:11434')
-    
-    oaic = OllamaChat(model=chat_model, base_url=chat_base_url, temperature=chat_temp)
-    oaic.add_message("system", system_prompt)
-    oaic.add_message("user", prompt)
-    response = oaic.execute()
+    # Get LLM response using chat manager (supports both Ollama and OpenAI)
+    chat_manager.add_message("system", system_prompt)
+    chat_manager.add_message("user", prompt)
+    response = chat_manager.execute()
     
     if not response:
         response = "Error: Could not generate response"

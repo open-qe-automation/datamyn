@@ -2,6 +2,7 @@
     "embedding_provider": "ollama",
     "embedding_model": "nomic-embed-text",
     "embedding_base_url": "http://localhost:11434",
+    "chat_provider": "ollama",
     "chat_model": "llama3.1",
     "chat_temperature": 0.0,
     "namespace": "banking",
