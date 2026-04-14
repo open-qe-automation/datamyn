@@ -32,29 +32,56 @@ def create_prompt(query, context_list):
 
 # main function
 def main(namespace, system_prompt, query):
-    print("Start: Main function")
+    print(f"Start: Main function")
+    print(f"  Raw namespace from Gradio: {repr(namespace)}")
+    print(f"  system_prompt: {repr(system_prompt[:50])}")
+    print(f"  query: {repr(query[:50])}")
     
     # Get embedding for user query
     embed_result = embedding_manager.execute(query)
     if not embed_result:
         return "Error: Could not generate embedding", "[]"
     
-    # Extract embedding vector
-    if hasattr(embed_result, 'data'):
-        embedding = embed_result.data[0].embedding
+    # Extract embedding vector (embed_result is a dict, not an object)
+    if isinstance(embed_result, dict):
+        if 'data' in embed_result and embed_result['data']:
+            embedding = embed_result['data'][0]['embedding']
+        elif 'embedding' in embed_result:
+            embedding = embed_result['embedding']
+        else:
+            embedding = []
     else:
-        embedding = embed_result.get('embedding', [])
+        embedding = []
+    
+    # Debug: check embedding
+    if not embedding or len(embedding) == 0:
+        print("ERROR: Empty embedding returned")
+        return "Error: Empty embedding returned by embedding model", "[]"
+    
+    print(f"Embedding generated, length: {len(embedding)}, first 3: {embedding[:3]}")
     
     # Query vector DB
     top_k = config.get('top_k', 5)
-    # Use namespace from Gradio dropdown (line 48 removed - was overwriting with config value)
+    # Use namespace from Gradio dropdown or default to config
+    namespace = namespace or config.get('namespace', 'banking')
+    print(f"Raw namespace from Gradio: {repr(namespace)}")
+    print(f"Using namespace: '{namespace}'")
+    
+    # Debug: check what collections exist
+    try:
+        collections = vector_db_manager.client.list_collections()
+        print(f"Available collections: {[c.name for c in collections]}")
+    except Exception as e:
+        print(f"Error listing collections: {e}")
+    
     vector_result = vector_db_manager.query(
         query_embedding=embedding,
         top_k=top_k,
         namespace=namespace
     )
     
-    if not vector_result or not vector_result.get('documents'):
+    if not vector_result or not vector_result.get('matches'):
+        print(f"DEBUG: vector_result = {vector_result}")
         return "No matching documents found", "[]"
     
     context = []
