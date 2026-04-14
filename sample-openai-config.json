@@ -1,0 +1,18 @@
+{
+    "embedding_provider": "openai",
+    "embedding_model": "text-embedding-3-small",
+    "embedding_base_url": "https://api.openai.com/v1",
+    "embedding_api_key": "YOUR_OPENAI_API_KEY",
+    "chat_provider": "openai",
+    "chat_model": "gpt-4o",
+    "chat_temperature": 0.0,
+    "openai_api_key": "YOUR_OPENAI_API_KEY",
+    "namespace": "banking",
+    "top_k": 5,
+    "vector_db_provider": "pinecone",
+    "pinecone_api_key": "YOUR_PINECONE_API_KEY",
+    "pinecone_environment": "us-west1-gcp",
+    "database": "banking",
+    "metadata_db_provider": "mongodb",
+    "mongo_uri": "mongodb://localhost:27017"
+}
