@@ -39,12 +39,12 @@ class TestCreatePrompt:
 
 class TestLocalHelpers:
     def test_ollama_import(self):
-        from helpers.ollama_helper import OllamaEmbeddings, OllamaChat
+        from msuliot.ollama_helper import OllamaEmbeddings, OllamaChat
         assert OllamaEmbeddings is not None
         assert OllamaChat is not None
 
     def test_chroma_import(self):
-        from helpers.chroma_helper import ChromaDB
+        from msuliot.chroma_helper import ChromaDB
         assert ChromaDB is not None
 
 
