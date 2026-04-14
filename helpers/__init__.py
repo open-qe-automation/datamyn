@@ -3,7 +3,6 @@
 
 from .ollama_helper import OllamaEmbeddings, OllamaChat
 from .chroma_helper import ChromaDB
-from .postgres_helper import PostgresDB
 
 
 class LocalRAG:
@@ -19,7 +18,7 @@ class LocalRAG:
         self.embedding_helper = OllamaEmbeddings(model=embedding_model)
         self.chat_helper = OllamaChat(model=chat_model)
         self.chroma = ChromaDB(persist_directory=chroma_persist_dir)
-        self.postgres = PostgresDB(connection_string=db_connection) if db_connection else None
+        self.postgres = None
 
     def query(self, user_query, namespace, top_k=5, system_prompt=None):
         embed = self.embedding_helper.execute(user_query)
