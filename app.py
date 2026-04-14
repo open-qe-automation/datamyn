@@ -87,34 +87,39 @@ def main(namespace, system_prompt, query):
     context = []
     source_info = []
     
-    # Process matches
-    documents = vector_result.get('documents', [[]])[0]
-    metadatas = vector_result.get('metadatas', [[]])[0]
-    distances = vector_result.get('distances', [[]])[0]
+    # Process matches from vector DB result
+    matches = vector_result.get('matches', [])
+    print(f"DEBUG: Processing {len(matches)} matches")
     
-    for i, doc in enumerate(documents):
-        metadata = metadatas[i] if i < len(metadatas) else {}
+    for i, match in enumerate(matches):
+        chunk_id = match.get('id', f'chunk_{i}')
+        metadata = match.get('metadata', {})
         source_file = metadata.get('source', 'unknown')
         chunk_number = metadata.get('chunk_number', i + 1)
-        score = distances[i] if i < len(distances) else 0.0
+        score = match.get('score', 0.0)
         
         # Get full text from metadata DB
-        chunk_id = metadata.get('chunk_id', f'chunk_{i}')
         table_name = config.get('database', 'rag-system')
         
+        print(f"DEBUG: Looking up chunk_id: {chunk_id[:30]}...")
         chunk_data = metadata_db_manager.get_chunk_by_id(table_name, chunk_id)
-        if chunk_data:
-            text = chunk_data.get('text', doc)
-        else:
-            text = doc
         
-        context.append(f"SourceFile: {source_file}, Chunk: {chunk_number}, Content: {text}")
+        if chunk_data:
+            text = chunk_data.get('text', '')
+            print(f"DEBUG: Found text: {text[:50]}...")
+        else:
+            text = match.get('values', '')  # fallback to vector text
+            print(f"DEBUG: No PostgreSQL data, using vector text: {text[:50] if text else 'empty'}...")
+        
+        context.append(f"SourceFile: {source_file}, Chunk: {chunk_number}, Content: {text[:300]}")
         source_info.append({
             'source': source_file,
             'chunk_number': chunk_number,
             'score': float(score),
             'content': text[:200] + '...' if len(text) > 200 else text
         })
+    
+    print(f"DEBUG: Built context with {len(context)} entries")
     
     # Generate prompt
     prompt = create_prompt(query, context)
