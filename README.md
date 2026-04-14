@@ -24,6 +24,7 @@ Key Features
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
+- [Testing](#testing)
 
 ## Prerequisites
 
@@ -127,3 +128,14 @@ The configuration is managed through a `config.json` file (not .env):
 **Metadata DB Provider:**
 - `postgresql` (local): Uses PostgreSQL connection string
 - `mongodb` (cloud): Requires MONGO env var
+
+## Testing
+
+Run tests with pytest:
+
+```bash
+pip install -r requirements.txt
+pytest
+```
+
+Tests are located in the `tests/` directory. Some tests require external services (PostgreSQL, Ollama, ChromaDB) to be running.
