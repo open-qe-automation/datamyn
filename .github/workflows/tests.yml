@@ -23,9 +23,22 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
-          pip install chromadb pytest
+          pip install chromadb pytest pytest-html
 
       - name: Run tests
         run: |
           source venv/bin/activate
-          pytest -v
+          pytest -v --html=report.html --self-contained-html
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-datamyn
+          path: report.html
+
+      - name: Show artifact link
+        if: always()
+        run: |
+          echo "## Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "Download: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts#summary" >> $GITHUB_STEP_SUMMARY
